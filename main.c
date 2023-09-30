@@ -139,6 +139,35 @@ void enforceInvariants() // error checking
 
 void printTraceProgram() // print the tracing
 {
+    printf("\tPC: %d\t\t", PC); //print the PC
+    if (HI != 0) printf("HI: %d\t\t", HI);  //if HI is not 0, print it
+    if (LO != 0) printf("LO: %d\t\t", LO);  //if LO is not 0, print it
+    printf("\n");
+
+    //prints the registers
+    for (int i = 0; i < NUM_REGISTERS; i++){
+        //still need to format so that the correct number of registers are on each line (should be 6 registers per line)
+            //this will currently print all the registers on one line so it needs to be changed
+        printf("GPR[%s]: %d\t", regname_get(i), GPR[i]);
+    }
+    printf("\n");   //this is just here for now so that the registers are on one line remove after formatting is done above
+
+    //prints the data section
+    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i){
+        if (Memory.words[header.data_start_address + i] != 0){
+            printf("%9d: %d ", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
+        }
+    }
+    printf("...\n\t");
+
+    //prints the stack
+    //not 100% confident in this part, may need to change this part a bit
+    for (int i = 0; i <= (SP - FP) / BYTES_PER_WORD; i++){
+        printf("\t%d: %d", (GPR[SP] + (i * BYTES_PER_WORD)), Memory.bytes[GPR[SP] + (i * BYTES_PER_WORD)]);
+    }
+    printf("...\n");
+
+    printf("==> addr:\t%d %s", PC, instruction_assembly_form(Memory.instrs[PC / BYTES_PER_WORD]));
 }
 
 int main(int argc, char *argv[])
