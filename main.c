@@ -20,11 +20,18 @@ void printProgram(BOFFILE bf) // this function prints the program, when the -p c
     {
         printf("%4d %s\n", i * 4, instruction_assembly_form(Memory.instrs[i]));
     }
-    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
+    for (int i = 0; i <= header.data_length; ++i) // prints all of the data section
     {
-        if (Memory.words[header.data_start_address + i] != 0)
+        printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
+
+        if (Memory.words[header.data_start_address + i] == 0)
         {
-            printf("%9d: %d ", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
+            break;
+        }
+
+        if (i % 4 == 0 && i != 0)
+        {
+            printf("\t\n");
         }
     }
     printf("...\n");
@@ -110,7 +117,7 @@ void enforceInvariants() // error checking
         bail_with_error("SP is greater than FP");
     }
 
-    if (GPR[FP]) // don't know how to get MAX_STACK_HEIGHT
+    if (GPR[FP] >= MEMORY_SIZE_IN_BYTES)
     {
     }
 
@@ -132,31 +139,6 @@ void enforceInvariants() // error checking
 
 void printTraceProgram() // print the tracing
 {
-    printf("\tPC: %d\t\t", PC); //print the PC
-    if (HI != 0) printf("HI: %d\t\t", HI);  //if HI is not 0, print it
-    if (LO != 0) printf("LO: %d\t\t", LO);  //if LO is not 0, print it
-    printf("\n");
-
-    //prints the registers
-    for (int i = 0; i < NUM_REGISTERS; i++){
-        //still need to format so that the correct number of registers are on each line (should be 6 registers per line)
-            //this will currently print all the registers on one line so it needs to be changed
-        printf("GPR[%s]: %d\t", regname_get(i), GPR[i]);
-    }
-    printf("\n");   //this is just here for now so that the registers are on one line remove after formatting is done above
-    
-    //prints the data section
-    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i){
-        if (Memory.words[header.data_start_address + i] != 0){
-            printf("%9d: %d ", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
-        }
-    }
-    printf("...\n");
-
-    //print whatever the 4096: 0 is in vm_bof0.out
-        //is it the sp or the fp???
-
-    printf("==> addr:\t%d %s", PC, instruction_assembly_form(Memory.instrs[PC / BYTES_PER_WORD]));
 }
 
 int main(int argc, char *argv[])
