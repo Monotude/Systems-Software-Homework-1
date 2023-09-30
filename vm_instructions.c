@@ -1,6 +1,7 @@
 #include "instruction.h"
 #include "machine_types.h"
 #include "utilities.h"
+#include "vm_registers.h"
 
 void executeInstruction(bin_instr_t instruction)
 {
@@ -28,6 +29,25 @@ void executeInstruction(bin_instr_t instruction)
 
 void registerInstructionExecute(bin_instr_t instruction)
 {
+    switch (instruction.reg.func)
+    {
+    case 0:
+        sll(instruction);
+        break;
+    case 3:
+        srl(instruction);
+        break;
+    }
+}
+
+void sll(bin_instr_t instruction)
+{
+    GPR[instruction.reg.rd] = GPR[instruction.reg.rt] << instruction.reg.shift;
+}
+
+void srl(bin_instr_t instruction)
+{
+    GPR[instruction.reg.rd] = GPR[instruction.reg.rt] >> instruction.reg.shift;
 }
 
 void systemcallInstructionExecute(bin_instr_t instruction)
