@@ -20,7 +20,7 @@ void printProgram(BOFFILE bf) // this function prints the program, when the -p c
     {
         printf("%4d %s\n", i * 4, instruction_assembly_form(Memory.instrs[i]));
     }
-    for (int i = 0; i <= header.data_length; ++i) // prints all of the data section
+    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
     {
         printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
 
