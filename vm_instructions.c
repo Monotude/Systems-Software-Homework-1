@@ -71,15 +71,11 @@ void registerInstructionExecute(bin_instr_t instruction)
         jr(instruction);
         break;
       case 12:
-        //systemCall(instruction);
+        immediateInstructionExecute(instruction);
         break;
       
           
     }
-}
-
-void systemCall(bin_instr_t instruction){ //needs to be finished
-  
 }
 
 void mfhi(bin_instr_t instruction){
@@ -118,10 +114,9 @@ void mul(bin_instr_t instruction){ //Needs to be checked********************
   putting the least significant bits in LO
   and the most significant bits in HI.
   (HI, LO) ← GPR[s] × GPR[t]*/
-  int product = GPR[instruction.reg.rs] * GPR[instruction.reg.rt];
-
-  HI = product % GPR[instruction.reg.rt];
-  LO = product/GPR[instruction.reg.rt];
+  long product = GPR[instruction.reg.rs] * GPR[instruction.reg.rt];
+  HI = (product & 0xFFFFFFFF00000000) >> 32;
+  LO = product & 0x00000000FFFFFFFF;
 }
 
 void div(bin_instr_t instruction){
@@ -159,12 +154,15 @@ void srl(bin_instr_t instruction)
 
 void systemcallInstructionExecute(bin_instr_t instruction)
 {
+  
 }
 
 void immediateInstructionExecute(bin_instr_t instruction)
 {
+  
 }
 
 void jumpInstructionExecute(bin_instr_t instruction)
 {
+  
 }

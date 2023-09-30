@@ -19,4 +19,4 @@ extern void srl(bin_instr_t instruction);
 extern void systemcallInstructionExecute(bin_instr_t instruction);
 extern void immediateInstructionExecute(bin_instr_t instruction);
 extern void jumpInstructionExecute(bin_instr_t instruction);
-extern void systemCall(bin_instr_t instruction);
+
