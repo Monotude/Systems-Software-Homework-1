@@ -66,7 +66,7 @@ void loadInfo(BOFFILE bf)
         Memory.words[header.data_start_address + i] = bof_read_word(bf);
     }
 
-    HI = LO = 0; // initialise hi and lo to 0
+    HI = LO = -1; // initialise hi and lo to -1
 
     for (int i = 0; i < 32; ++i) // initialise GPR to 0
     {
@@ -140,6 +140,65 @@ void enforceInvariants() // error checking
 
 void printTraceProgram() // print the tracing
 {
+    printf("      PC: %d", PC); // print the PC
+
+    if (HI != -1) // if HI is not -1, print it
+    {
+        printf("\t      HI: %d", HI);
+    }
+
+    if (LO != -1) // if LO is not -1, print it
+    {
+        printf("\t      LO: %d", LO);
+    }
+
+    printf("\n");
+
+    // prints the registers
+    for (int i = 0; i < NUM_REGISTERS; i++)
+    {
+        printf("GPR[%-3s]: %d     ", regname_get(i), GPR[i]);
+
+        if (i % 6 == 5)
+        {
+            printf("\n");
+        }
+    }
+    printf("\n");
+
+    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
+    {
+        printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
+
+        if (Memory.words[header.data_start_address + i] == 0)
+        {
+            break;
+        }
+
+        if (i % 4 == 0 && i != 0)
+        {
+            printf("\t\n");
+        }
+    }
+    printf("...\n");
+
+    for (int i = GPR[30]; i >= GPR[29]; i -= BYTES_PER_WORD) // prints all of the data section
+    {
+        printf("%8d: %d\t", i, Memory.words[i]);
+
+        if (Memory.words[i] == 0)
+        {
+            break;
+        }
+
+        if (i % 4 == 0 && i != 0)
+        {
+            printf("\t\n");
+        }
+    }
+    printf("...\n");
+
+    printf("==> addr: %4d %s", PC, instruction_assembly_form(Memory.instrs[PC / BYTES_PER_WORD]));
 }
 
 int main(int argc, char *argv[])
