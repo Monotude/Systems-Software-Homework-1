@@ -39,16 +39,19 @@ void printProgram(BOFFILE bf) // this function prints the program, when the -p c
 
 void traceProgram(BOFFILE bf)
 {
-    loadInfo(bf);         // load all of the file info into memory and registers
-    rewind(file.fileptr); // start the file pointer over so you can read the instructions
+    loadInfo(bf); // load all of the file info into memory and registers
+    enforceInvariants();
 
     for (int i = 0; i < header.text_length; ++i)
     {
-        enforceInvariants();
-        printTraceProgram();
+        if (tracing == 1)
+        {
+            printTraceProgram();
+        }
         IR = PC;
         PC += 4;
-        executeInstruction(instruction_read(file));
+        executeInstruction(Memory.instrs[IR]);
+        enforceInvariants();
     }
 }
 

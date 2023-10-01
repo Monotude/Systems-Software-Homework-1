@@ -3,3 +3,4 @@
 
 BOFFILE file;
 BOFHeader header;
+int tracing = 1;
