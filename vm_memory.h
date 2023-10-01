@@ -9,12 +9,13 @@
 #define MEMORY_SIZE_IN_WORDS (MEMORY_SIZE_IN_BYTES / BYTES_PER_WORD)
 
 // union to represent the memory
-static union mem_u {
+union mem_u
+{
   byte_type bytes[MEMORY_SIZE_IN_BYTES];
   word_type words[MEMORY_SIZE_IN_WORDS];
   bin_instr_t instrs[MEMORY_SIZE_IN_WORDS];
-} Memory;
+};
 
-
+extern union mem_u Memory;
 
 #endif

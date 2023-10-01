@@ -1,6 +1,9 @@
+#ifndef _MAIN_H
+#define _MAIN_H
 #include "bof.h"
-#include "machine_types.h"
 
-BOFFILE file;
-BOFHeader header;
-int tracing = 1;
+extern BOFFILE file;
+extern BOFHeader header;
+extern int tracing;
+
+#endif

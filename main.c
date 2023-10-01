@@ -11,49 +11,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-void printProgram(BOFFILE bf) // this function prints the program, when the -p command is used in the command line
-{
-    loadInfo(bf); // load all of the file info into memory and registers
-
-    printf("Addr Instruction\n");                                 // begins the outputting
-    for (int i = 0; i < header.text_length / BYTES_PER_WORD; ++i) // prints all of the instructions
-    {
-        printf("%4d %s\n", i * 4, instruction_assembly_form(Memory.instrs[i]));
-    }
-    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
-    {
-        printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
-
-        if (Memory.words[header.data_start_address + i] == 0)
-        {
-            break;
-        }
-
-        if (i % 4 == 0 && i != 0)
-        {
-            printf("\t\n");
-        }
-    }
-    printf("...\n");
-}
-
-void traceProgram(BOFFILE bf)
-{
-    loadInfo(bf); // load all of the file info into memory and registers
-    enforceInvariants();
-
-    for (int i = 0; i < header.text_length; ++i)
-    {
-        if (tracing == 1)
-        {
-            printTraceProgram();
-        }
-        IR = PC;
-        PC += 4;
-        executeInstruction(Memory.instrs[IR]);
-        enforceInvariants();
-    }
-}
+BOFFILE file;
+BOFHeader header;
+int tracing = 1;
+word_type PC;
+word_type HI, LO;
+word_type IR;
+word_type GPR[32];
+union mem_u Memory;
 
 void loadInfo(BOFFILE bf)
 {
@@ -66,7 +31,7 @@ void loadInfo(BOFFILE bf)
 
     for (int i = 0; i < header.data_length / BYTES_PER_WORD; ++i) // inputs all of the data section into memory
     {
-        Memory.words[header.data_start_address + i] = bof_read_word(bf);
+        Memory.words[header.data_start_address / BYTES_PER_WORD + i] = bof_read_word(bf);
     }
 
     HI = LO = -1; // initialise hi and lo to -1
@@ -81,6 +46,32 @@ void loadInfo(BOFFILE bf)
     GPR[GP] = header.data_start_address; // initialise global pointer
 
     GPR[SP] = GPR[FP] = header.stack_bottom_addr; // initialise stack and frame pointer
+}
+
+void printProgram(BOFFILE bf) // this function prints the program, when the -p command is used in the command line
+{
+    loadInfo(bf); // load all of the file info into memory and registers
+
+    printf("Addr Instruction\n");                                 // begins the outputting
+    for (int i = 0; i < header.text_length / BYTES_PER_WORD; ++i) // prints all of the instructions
+    {
+        printf("%4d %s\n", i * 4, instruction_assembly_form(Memory.instrs[i]));
+    }
+    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
+    {
+        printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address / BYTES_PER_WORD + i]);
+
+        if (Memory.words[header.data_start_address / BYTES_PER_WORD + i] == 0)
+        {
+            break;
+        }
+
+        if (i % 5 == 4)
+        {
+            printf("\t\n");
+        }
+    }
+    printf("...\n");
 }
 
 void enforceInvariants() // error checking
@@ -160,7 +151,7 @@ void printTraceProgram() // print the tracing
     // prints the registers
     for (int i = 0; i < NUM_REGISTERS; i++)
     {
-        printf("GPR[%-3s]: %d     ", regname_get(i), GPR[i]);
+        printf("GPR[%-3s]: %-5d ", regname_get(i), GPR[i]);
 
         if (i % 6 == 5)
         {
@@ -169,39 +160,70 @@ void printTraceProgram() // print the tracing
     }
     printf("\n");
 
-    for (int i = 0; i <= header.data_length / BYTES_PER_WORD; ++i) // prints all of the data section
+    for (int i = 0; 1; ++i) // prints all of the data section
     {
-        printf("%8d: %d\t", header.data_start_address + (i * BYTES_PER_WORD), Memory.words[header.data_start_address + i]);
+        printf("%8d: %d\t", GPR[28] + (i * BYTES_PER_WORD), Memory.words[GPR[28] / BYTES_PER_WORD + i]);
 
-        if (Memory.words[header.data_start_address + i] == 0)
+        if (Memory.words[GPR[28] / BYTES_PER_WORD + i] == 0)
         {
             break;
         }
 
-        if (i % 4 == 0 && i != 0)
+        if (i % 5 == 4)
         {
             printf("\t\n");
         }
     }
     printf("...\n");
 
-    for (int i = GPR[30]; i >= GPR[29]; i -= BYTES_PER_WORD) // prints all of the data section
+    int searching = 0;
+    int counter = 0;
+    for (int i = 0; GPR[29] + i * BYTES_PER_WORD <= GPR[30]; ++i) // prints all of the data section
     {
-        printf("%8d: %d\t", i, Memory.words[i]);
-
-        if (Memory.words[i] == 0)
+        if (searching == 1 && Memory.words[GPR[29] / BYTES_PER_WORD + i] != 0)
         {
-            break;
+            searching = 0;
         }
 
-        if (i % 4 == 0 && i != 0)
+        else if (searching == 1)
+        {
+            continue;
+        }
+
+        printf("%8d: %d\t", GPR[29] + i * BYTES_PER_WORD, Memory.words[GPR[29] / BYTES_PER_WORD + i]);
+
+        if (Memory.words[GPR[29] / BYTES_PER_WORD + i] == 0)
+        {
+            printf("...");
+            searching = 1;
+        }
+
+        if (counter++ % 5 == 4)
         {
             printf("\t\n");
         }
     }
-    printf("...\n");
+    printf("\n");
 
-    printf("==> addr: %4d %s", PC, instruction_assembly_form(Memory.instrs[PC / BYTES_PER_WORD]));
+    printf("==> addr: %4d %s\n", PC, instruction_assembly_form(Memory.instrs[PC / BYTES_PER_WORD]));
+}
+
+void traceProgram(BOFFILE bf)
+{
+    loadInfo(bf); // load all of the file info into memory and registers
+    enforceInvariants();
+
+    while(1)
+    {
+        if (tracing == 1)
+        {
+            printTraceProgram();
+        }
+        IR = PC;
+        PC += 4;
+        executeInstruction(Memory.instrs[IR / BYTES_PER_WORD]);
+        enforceInvariants();
+    }
 }
 
 int main(int argc, char *argv[])
