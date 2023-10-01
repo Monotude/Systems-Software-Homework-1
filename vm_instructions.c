@@ -81,7 +81,12 @@ void registerInstructionExecute(bin_instr_t instruction)
 
 void systemcallInstructionExecute(bin_instr_t instruction) //looks at opcode
 {
-  switch(instruction.reg.op){
+  
+}
+
+void immediateInstructionExecute(bin_instr_t instruction)
+{
+  switch(instruction.immed.op){
     case 9:
       addi(instruction);
       break;
@@ -127,11 +132,6 @@ void systemcallInstructionExecute(bin_instr_t instruction) //looks at opcode
     
     
   }
-}
-
-void immediateInstructionExecute(bin_instr_t instruction)
-{
-  
 }
 
 void jumpInstructionExecute(bin_instr_t instruction)
