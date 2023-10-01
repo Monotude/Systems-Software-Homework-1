@@ -1,3 +1,9 @@
+/*
+Systems Software Homework 1
+Made by: Tyler Knoop, Brady Napier, and Shaun Gorllapati
+10/1/2023
+*/
+
 #include "bof.h"
 #include "instruction.h"
 #include "machine_types.h"
@@ -213,7 +219,7 @@ void traceProgram(BOFFILE bf)
     loadInfo(bf); // load all of the file info into memory and registers
     enforceInvariants();
 
-    while(1)
+    while (1)
     {
         if (tracing == 1)
         {
